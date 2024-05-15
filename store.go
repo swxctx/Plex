@@ -6,7 +6,7 @@ import (
 
 // connStore
 type connStore struct {
-	data map[string]*connection
+	data map[string]*storeInfo
 	rwMu sync.RWMutex
 }
 
@@ -19,12 +19,12 @@ func newConnStore(capacity ...int) *connStore {
 		cap = capacity[0]
 	}
 	return &connStore{
-		data: make(map[string]*connection, cap),
+		data: make(map[string]*storeInfo, cap),
 	}
 }
 
 // Get
-func (cs *connStore) Get(key string) (value *connection, exists bool) {
+func (cs *connStore) Get(key string) (value *storeInfo, exists bool) {
 	cs.rwMu.RLock()
 	value, exists = cs.data[key]
 	cs.rwMu.RUnlock()
@@ -32,14 +32,14 @@ func (cs *connStore) Get(key string) (value *connection, exists bool) {
 }
 
 // Set
-func (cs *connStore) Set(key string, value *connection) {
+func (cs *connStore) Set(key string, value *storeInfo) {
 	cs.rwMu.Lock()
 	cs.data[key] = value
 	cs.rwMu.Unlock()
 }
 
 // GetOrSet if
-func (cs *connStore) GetOrSet(key string, value *connection) (actual *connection, exists bool) {
+func (cs *connStore) GetOrSet(key string, value *storeInfo) (actual *storeInfo, exists bool) {
 	cs.rwMu.Lock()
 	actual, exists = cs.data[key]
 	if !exists {
