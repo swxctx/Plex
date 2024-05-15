@@ -8,7 +8,8 @@ import (
 func main() {
 	// new server
 	plex.NewServer(&plex.Config{
-		ShowTrace: true,
+		ShowTrace:   true,
+		AuthTimeout: 5,
 	})
 
 	// start

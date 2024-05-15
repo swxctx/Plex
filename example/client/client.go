@@ -1,9 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"github.com/swxctx/plex/pack"
 	"github.com/swxctx/plex/plog"
+	"io"
 	"net"
 	"time"
 )
@@ -17,25 +17,29 @@ func main() {
 	}
 	plog.Infof("connected.")
 
-	i := 0
+	//i := 0
 	// 循环接收消息
 	for {
-		// 发送消息
-		writeData, err := pack.Pack(&pack.Message{
-			Seq:  1,
-			URI:  fmt.Sprintf("/auth/request_%d", i),
-			Body: fmt.Sprintf("r: %d", i),
-		})
-		if err != nil {
-			plog.Errorf("pack err-> %v", err)
-			return
-		}
-		conn.Write(writeData)
-		i++
+		//// 发送消息
+		//writeData, err := pack.Pack(&pack.Message{
+		//	Seq:  1,
+		//	URI:  fmt.Sprintf("/auth/request_%d", i),
+		//	Body: fmt.Sprintf("r: %d", i),
+		//})
+		//if err != nil {
+		//	plog.Errorf("pack err-> %v", err)
+		//	return
+		//}
+		//conn.Write(writeData)
+		//i++
 
 		message, err := pack.Unpack(conn)
 		if err != nil {
 			plog.Errorf("unpack err-> %v", err)
+			if err == io.EOF || err == io.ErrUnexpectedEOF {
+				conn.Close()
+				break
+			}
 			continue
 		}
 		if message == nil {
