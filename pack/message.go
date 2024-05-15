@@ -7,11 +7,11 @@ import (
 // Message
 type Message struct {
 	// 消息序号
-	Seq int64 `json:"seq"`
+	Seq int64 `json:"seq,omitempty"`
 	// 标识
-	URI string `json:"uri"`
+	URI string `json:"uri,omitempty"`
 	// 数据体
-	Body string `json:"body"`
+	Body string `json:"body,omitempty"`
 }
 
 // marshalMessage

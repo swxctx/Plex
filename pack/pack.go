@@ -48,8 +48,13 @@ func Unpack(conn net.Conn) (*Message, error) {
 	// data head
 	head := make([]byte, headSize)
 	if _, err := io.ReadFull(conn, head); err != nil {
-		if err == io.EOF {
-			return nil, nil
+		if err == io.EOF || err == io.ErrUnexpectedEOF {
+			return nil, err
+		}
+
+		// ReadDeadline timeout
+		if netErr, ok := err.(net.Error); ok && netErr.Timeout() {
+			return nil, err
 		}
 		plog.Errorf("unpack: read msg head err-> %v", err)
 		return nil, err
@@ -69,6 +74,14 @@ func Unpack(conn net.Conn) (*Message, error) {
 
 	msgTemp := make([]byte, msgLength)
 	if _, err := io.ReadFull(conn, msgTemp); err != nil {
+		if err == io.EOF || err == io.ErrUnexpectedEOF {
+			return nil, err
+		}
+
+		// ReadDeadline timeout
+		if netErr, ok := err.(net.Error); ok && netErr.Timeout() {
+			return nil, err
+		}
 		plog.Errorf("unpack: message read err-> %v", err)
 		return nil, err
 	}
