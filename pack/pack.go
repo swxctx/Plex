@@ -3,9 +3,10 @@ package pack
 import (
 	"bytes"
 	"encoding/binary"
-	"github.com/swxctx/plex/plog"
 	"io"
 	"net"
+
+	"github.com/swxctx/plex/plog"
 )
 
 const (
