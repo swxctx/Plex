@@ -6,8 +6,14 @@ import (
 
 // Config
 type Config struct {
-	// 监听端口
+	// TCP监听端口
 	Port string
+	// Http api 监听端口号
+	HttpPort string
+	// 多机部署，服务器地址["123.123.45.67:9587", "123.123.45.68:9588"]
+	OuterServers []string
+	// 内部通信密码
+	InnerPassword string
 	// 显示详细运行日志
 	ShowTrace bool
 	// 最大连接数
@@ -25,14 +31,28 @@ type Config struct {
 // reloadConfig
 func reloadConfig(cfgArg *Config) *Config {
 	cfg := cfgArg
+
 	if len(cfg.Port) <= 0 {
 		cfg.Port = "9578"
 	}
+
+	if len(cfg.HttpPort) <= 0 {
+		cfg.HttpPort = "9579"
+	}
+
+	if len(cfg.OuterServers) <= 0 {
+		cfg.OuterServers = []string{"127.0.0.1:" + cfg.Port}
+	}
+
+	if len(cfg.InnerPassword) <= 0 {
+		cfg.InnerPassword = "plex-inner"
+	}
+
 	if cfg.ShowTrace {
 		plog.SetLevel("trace")
 	}
 	if cfg.AuthTimeout <= 0 {
-		cfg.AuthTimeout = 20
+		cfg.AuthTimeout = 30
 	}
 	if cfg.Heartbeat <= 0 {
 		cfg.Heartbeat = 60
@@ -41,5 +61,15 @@ func reloadConfig(cfgArg *Config) *Config {
 		cfg.HeartbeatTimeout = 120
 	}
 
+	plog.Infof("--- config start ----")
+	plog.Infof("Port: %s", cfg.Port)
+	plog.Infof("HttpPort: %s", cfg.HttpPort)
+	plog.Infof("OuterServers: %v", cfg.OuterServers)
+	plog.Infof("InnerPassword: %v", cfg.InnerPassword)
+	plog.Infof("ShowTrace: %v", cfg.ShowTrace)
+	plog.Infof("AuthTimeout(s): %d", cfg.AuthTimeout)
+	plog.Infof("Heartbeat(s): %d", cfg.Heartbeat)
+	plog.Infof("HeartbeatTimeout(s): %d", cfg.HeartbeatTimeout)
+	plog.Infof("--- config end ----")
 	return cfg
 }
