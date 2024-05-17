@@ -1,38 +1,19 @@
 package plex
 
 import (
-	"github.com/swxctx/plex/pack"
-	"github.com/swxctx/plex/plog"
 	"io"
 	"net"
 	"time"
+
+	"github.com/swxctx/plex/pack"
+	"github.com/swxctx/plex/plog"
 )
-
-// startReaderRoutine
-func (s *plexServer) newPlexConnection(conn net.Conn) {
-	// 开启startReader时，默认是没有授权的，同时也不做存储
-	authTimeout := time.Now().Add(time.Duration(s.cfg.AuthTimeout) * time.Second)
-
-	// 设置超时时间
-	conn.SetReadDeadline(authTimeout)
-
-	// new connection
-	connection := plexConnection{
-		plexServer: s,
-		storeInfo: &storeInfo{
-			conn:      conn,
-			heartbeat: time.Now().Unix(),
-		},
-	}
-
-	// start routine
-	go connection.startReaderRoutine()
-}
 
 // startReaderRoutine
 func (c *plexConnection) startReaderRoutine() {
 	remoteAddr := c.storeInfo.conn.RemoteAddr().String()
-	plog.Infof("accept conn-> %s", remoteAddr)
+	c.remoteAddr = remoteAddr
+	plog.Infof("plex server accept conn-> %s", remoteAddr)
 
 	// set auth timeout
 	c.storeInfo.conn.SetReadDeadline(time.Now().Add(time.Duration(c.plexServer.cfg.AuthTimeout) * time.Second))
@@ -60,7 +41,8 @@ func (c *plexConnection) startReaderRoutine() {
 			continue
 		}
 
-		plog.Tracef("receiver msg-> %#v", message)
+		plog.Tracef("server receiver remote-> %s, msg-> %#v", c.remoteAddr, message)
+		c.receiveMsgHandler(message)
 	}
 }
 
@@ -69,14 +51,64 @@ func (c *plexConnection) receiveMsgHandler(message *pack.Message) {
 	switch message.URI {
 	case auth_uri:
 		// auth
-		if !c.plexServer.authFunc(message.Body) {
+		authSuccess, uid := c.plexServer.authFunc(message.Body)
+		if !authSuccess {
+			plog.Errorf("auth failed, remote-> %s, body-> %d", c.remoteAddr, message.Body)
 			// auth failed
+			c.responseOnlyUri(auth_failed_uri)
 			return
 		}
+
+		plog.Infof("auth success, remote-> %s, body-> %s", c.remoteAddr, message.Body)
+		// save conn cache
+		c.plexServer.store.set(uid, c.storeInfo)
+		c.uid = uid
+
+		// heartbeat timeout
+		c.setReadDeadline(c.plexServer.cfg.HeartbeatTimeout)
+
 		// auth success
 		c.responseOnlyUri(auth_success_uri)
 		break
 	case heartbeat_uri:
 		// heartbeat
+		c.storeInfo.heartbeat = time.Now().Unix()
+
+		if len(c.uid) > 0 {
+			c.plexServer.store.set(c.uid, c.storeInfo)
+		}
+
+		// next heartbeat timeout
+		c.setReadDeadline(c.plexServer.cfg.HeartbeatTimeout)
+
+		// response success
+		go c.responseOnlyUri(heartbeat_uri)
+		break
+	case inner_auth_uri:
+		// inner tcp
+		if message.Body != c.plexServer.cfg.InnerPassword {
+			plog.Errorf("inner auth failed, remote-> %s, body-> %d", c.remoteAddr, message.Body)
+			// auth failed
+			c.responseOnlyUri(auth_failed_uri)
+			return
+		}
+
+		plog.Infof("inner auth success, remote-> %s, body-> %s", c.remoteAddr, message.Body)
+
+		// heartbeat timeout
+		c.setReadDeadline(c.plexServer.cfg.HeartbeatTimeout)
+
+		// auth success
+		c.responseOnlyUri(auth_success_uri)
+		break
+	case send_msg_uri:
+		// send msg to client
+		go c.plexServer.sendMessageOuterClient(message)
+		break
 	}
+}
+
+// setReadDeadline
+func (c *plexConnection) setReadDeadline(duration int64) {
+	c.storeInfo.conn.SetReadDeadline(time.Now().Add(time.Duration(duration) * time.Second))
 }
