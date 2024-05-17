@@ -6,7 +6,9 @@ import (
 
 // connStore
 type connStore struct {
+	// client data
 	data map[string]*storeInfo
+	// lock
 	rwMu sync.RWMutex
 }
 
@@ -23,23 +25,23 @@ func newConnStore(capacity ...int) *connStore {
 	}
 }
 
-// Get
-func (cs *connStore) Get(key string) (value *storeInfo, exists bool) {
+// get
+func (cs *connStore) get(key string) (value *storeInfo, exists bool) {
 	cs.rwMu.RLock()
 	value, exists = cs.data[key]
 	cs.rwMu.RUnlock()
 	return value, exists
 }
 
-// Set
-func (cs *connStore) Set(key string, value *storeInfo) {
+// set
+func (cs *connStore) set(key string, value *storeInfo) {
 	cs.rwMu.Lock()
 	cs.data[key] = value
 	cs.rwMu.Unlock()
 }
 
-// GetOrSet if
-func (cs *connStore) GetOrSet(key string, value *storeInfo) (actual *storeInfo, exists bool) {
+// getOrSet if
+func (cs *connStore) getOrSet(key string, value *storeInfo) (actual *storeInfo, exists bool) {
 	cs.rwMu.Lock()
 	actual, exists = cs.data[key]
 	if !exists {
@@ -50,15 +52,15 @@ func (cs *connStore) GetOrSet(key string, value *storeInfo) (actual *storeInfo, 
 	return actual, exists
 }
 
-// Del
-func (cs *connStore) Del(key string) {
+// del
+func (cs *connStore) del(key string) {
 	cs.rwMu.Lock()
 	delete(cs.data, key)
 	cs.rwMu.Unlock()
 }
 
-// Clear clears all data
-func (cs *connStore) Clear() {
+// clear clears all data
+func (cs *connStore) clear() {
 	cs.rwMu.Lock()
 	for k := range cs.data {
 		delete(cs.data, k)
@@ -66,8 +68,8 @@ func (cs *connStore) Clear() {
 	cs.rwMu.Unlock()
 }
 
-// Len return data length
-func (cs *connStore) Len() int {
+// len return data length
+func (cs *connStore) len() int {
 	cs.rwMu.RLock()
 	defer cs.rwMu.RUnlock()
 	return len(cs.data)
