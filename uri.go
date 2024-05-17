@@ -13,3 +13,11 @@ const (
 	// heartbeat uri
 	heartbeat_uri = "/heartbeat"
 )
+
+const (
+	// send msg to client (inner server)
+	send_msg_uri = "/logic/send/msg"
+
+	// inner server auth uri
+	inner_auth_uri = "/inner/auth/server"
+)
