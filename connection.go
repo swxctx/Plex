@@ -13,6 +13,8 @@ type plexConnection struct {
 	uid string
 	// remote
 	remoteAddr string
+	// auth success
+	isAuthenticated bool
 	// conn cache info
 	storeInfo *storeInfo
 	// bind server info
@@ -37,7 +39,7 @@ func (c *plexConnection) close() {
 }
 
 // responseOnlyUri
-func (c *plexConnection) responseOnlyUri(uri string) {
+func (c *plexConnection) responseOnlyUri(uri string) error {
 	// pack message
 	message, err := pack.Pack(&pack.Message{
 		Seq: GetSeq(),
@@ -45,14 +47,15 @@ func (c *plexConnection) responseOnlyUri(uri string) {
 	})
 	if err != nil {
 		plog.Errorf("responseOnlyUri: err-> %v, uri-> %s", err, uri)
-		return
+		return err
 	}
 
 	// send message
-	c.storeInfo.send(message)
+	return c.storeInfo.send(message)
 }
 
 // send
-func (s *storeInfo) send(data []byte) {
-	s.conn.Write(data)
+func (s *storeInfo) send(data []byte) error {
+	_, err := s.conn.Write(data)
+	return err
 }

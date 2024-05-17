@@ -48,7 +48,7 @@ func (c *plexClient) broadcastMessage(sendMessage string) {
 
 // startWriteMessagesToInnerServer
 func (c *plexClient) startWriteMessagesToInnerServer(clientArg *innerClient) {
-	plog.Infof("start write message to inner server job ,id-> %s", clientArg.id)
+	plog.Infof("start write message to inner server job, id-> %s", clientArg.id)
 	for msgStr := range clientArg.messageChan {
 		// pack message
 		msgByte, err := pack.Pack(packInnerSendMsg(msgStr))

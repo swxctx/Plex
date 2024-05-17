@@ -2,6 +2,7 @@ package plex
 
 import (
 	"net"
+	"sync"
 
 	"github.com/swxctx/plex/plog"
 )
@@ -43,12 +44,24 @@ func Start(config *Config, fn ...func(body string) (bool, string)) {
 
 	plog.Infof("--- server start begin ---")
 
+	var (
+		wg sync.WaitGroup
+	)
+	wg.Add(2)
+
 	// start http
-	go server.startHttpServer()
+	go func() {
+		defer wg.Done()
+		server.startHttpServer()
+	}()
 
 	// start tcp
-	server.startTcpServer()
+	go func() {
+		defer wg.Done()
+		server.startTcpServer()
+	}()
 
+	wg.Wait()
 	plog.Infof("--- server start end ---")
 }
 

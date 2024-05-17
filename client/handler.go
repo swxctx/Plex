@@ -108,7 +108,7 @@ func (c *plexClient) startInnerClientHeartbeat(conn net.Conn) {
 	}
 
 	// time ticket
-	ticker := time.NewTicker(60 * time.Second)
+	ticker := time.NewTicker(time.Duration(c.cfg.Heartbeat) * time.Second)
 	defer ticker.Stop()
 
 	for {

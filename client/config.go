@@ -10,6 +10,8 @@ type Config struct {
 	InnerServers []string
 	// 内部通信密码
 	InnerPassword string
+	// 心跳时间间隔(默认60秒)
+	Heartbeat int64
 	// 显示详细运行日志
 	ShowTrace bool
 	// 是否是小端字节序(默认是大端字节序)
@@ -28,6 +30,10 @@ func reloadConfig(cfgArg *Config) *Config {
 		cfg.InnerPassword = "plex-inner"
 	}
 
+	if cfg.Heartbeat <= 0 {
+		cfg.Heartbeat = 60
+	}
+
 	if cfg.ShowTrace {
 		plog.SetLevel("trace")
 	}
@@ -35,6 +41,7 @@ func reloadConfig(cfgArg *Config) *Config {
 	plog.Infof("--- config start ----")
 	plog.Infof("InnerServers: %v", cfg.InnerServers)
 	plog.Infof("InnerPassword: %v", cfg.InnerPassword)
+	plog.Infof("Heartbeat: %v", cfg.Heartbeat)
 	plog.Infof("ShowTrace: %v", cfg.ShowTrace)
 	plog.Infof("LittleEndian(s): %d", cfg.LittleEndian)
 	plog.Infof("--- config end ----")
