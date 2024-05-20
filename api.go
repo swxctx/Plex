@@ -12,7 +12,7 @@ import (
 
 // outerServerData
 type outerServerData struct {
-	Hosts []string `json:"hosts,omitempty"`
+	Host string `json:"host,omitempty"`
 }
 
 // startHttpServer
@@ -39,7 +39,7 @@ func (s *plexServer) hostHandler(w http.ResponseWriter, r *http.Request) {
 
 	cfgHosts := s.cfg.OuterServers
 	hosts := outerServerData{
-		Hosts: shuffleHosts(cfgHosts),
+		Host: shuffleHosts(cfgHosts),
 	}
 
 	// response
@@ -53,11 +53,11 @@ func (s *plexServer) hostHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(data)
 }
 
-// shuffleHosts
-func shuffleHosts(hosts []string) []string {
+func init() {
 	rand.Seed(time.Now().UnixNano())
-	rand.Shuffle(len(hosts), func(i, j int) {
-		hosts[i], hosts[j] = hosts[j], hosts[i]
-	})
-	return hosts
+}
+
+// shuffleHosts
+func shuffleHosts(hosts []string) string {
+	return hosts[rand.Intn(len(hosts))]
 }
