@@ -11,7 +11,7 @@ import (
 
 func main() {
 	// connect plex server
-	conn, err := net.Dial("tcp", "127.0.0.1:9578")
+	conn, err := net.Dial("tcp", "117.50.198.225:9578")
 	if err != nil {
 		plog.Errorf("err-> %v", err)
 		return
@@ -25,7 +25,7 @@ func main() {
 			// 发送消息
 			writeData, err := pack.Pack(&pack.Message{
 				URI:  "/auth/server",
-				Body: "plex-example",
+				Body: "1",
 			})
 			if err != nil {
 				plog.Errorf("pack err-> %v", err)
