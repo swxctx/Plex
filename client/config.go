@@ -43,7 +43,7 @@ func reloadConfig(cfgArg *Config) *Config {
 	plog.Infof("InnerPassword: %v", cfg.InnerPassword)
 	plog.Infof("Heartbeat: %v", cfg.Heartbeat)
 	plog.Infof("ShowTrace: %v", cfg.ShowTrace)
-	plog.Infof("LittleEndian(s): %d", cfg.LittleEndian)
+	plog.Infof("LittleEndian(s): %v", cfg.LittleEndian)
 	plog.Infof("--- config end ----")
 	return cfg
 }
