@@ -1,7 +1,7 @@
 package plex
 
 const (
-	// request quth uri
+	// request auth uri
 	auth_uri = "/auth/server"
 
 	// auth failed url

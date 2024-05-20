@@ -24,6 +24,7 @@ func (c *plexConnection) startReaderRoutine() {
 		if err := c.handleMessage(); err != nil {
 			if err == io.EOF {
 				plog.Tracef("connection closed, remote-> %s, uid-> %s", c.remoteAddr, c.uid)
+				c.close()
 				break
 			}
 

@@ -11,7 +11,7 @@ import (
 // addInnerClient
 func (c *plexClient) addInnerClient(conn net.Conn) {
 	clientArg := &innerClient{
-		id:          conn.LocalAddr().String(),
+		id:          conn.RemoteAddr().String(),
 		conn:        conn,
 		messageChan: make(chan string),
 	}

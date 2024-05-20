@@ -37,6 +37,7 @@ func (c *plexClient) innerClientConnection(serverAddr string) {
 	}
 	defer conn.Close()
 
+	remoteAddr := conn.RemoteAddr().String()
 	plog.Infof("inner client connected, remote-> %s", serverAddr)
 
 	authSuccess := false
@@ -47,7 +48,8 @@ func (c *plexClient) innerClientConnection(serverAddr string) {
 			// auth
 			if err := c.sendAuthMessage(conn); err != nil {
 				plog.Errorf("inner client send auth message err-> %v", err)
-				return
+				c.removeInnerClient(remoteAddr)
+				break
 			}
 		}
 
@@ -56,6 +58,7 @@ func (c *plexClient) innerClientConnection(serverAddr string) {
 		if err != nil {
 			if err == io.EOF || err == io.ErrUnexpectedEOF {
 				plog.Infof("connection closed by server")
+				c.removeInnerClient(remoteAddr)
 				break
 			}
 			plog.Errorf("inner client unpack err-> %v", err)
@@ -79,6 +82,7 @@ func (c *plexClient) innerClientConnection(serverAddr string) {
 			c.addInnerClient(conn)
 		case auth_failed_uri:
 			plog.Infof("inner client auth failed, check inner password")
+			c.removeInnerClient(remoteAddr)
 			return
 		}
 	}
