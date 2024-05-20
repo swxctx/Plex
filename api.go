@@ -19,7 +19,7 @@ type outerServerData struct {
 func (s *plexServer) startHttpServer() {
 	plog.Infof("plex http server is starting...")
 
-	http.HandleFunc("/plex/v1/hosts", s.hostHandler)
+	http.HandleFunc("/plex/v1/host", s.hostHandler)
 	if err := http.ListenAndServe(fmt.Sprintf(":%s", s.cfg.HttpPort), nil); err != nil {
 		plog.Errorf("start http listen err-> %v", err)
 	}
