@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strconv"
 
-	tp "github.com/henrylee2cn/teleport"
 	"github.com/swxctx/plex"
 	"github.com/swxctx/plex/plog"
 )
@@ -14,7 +13,7 @@ func main() {
 		plog.Infof("auth, body-> %s", body)
 		uid, err := strconv.ParseInt(body, 10, 64)
 		if err != nil {
-			tp.Errorf("ParseInt: err-> %v, str-> %s", err, body)
+			plog.Errorf("ParseInt: err-> %v, str-> %s", err, body)
 			return false, ""
 		}
 		return true, fmt.Sprintf("%d", uid)

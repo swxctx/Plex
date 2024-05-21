@@ -11,7 +11,7 @@ import (
 
 func main() {
 	// connect plex server
-	conn, err := net.Dial("tcp", "117.50.198.225:9578")
+	conn, err := net.Dial("tcp", "127.0.0.1:9578")
 	if err != nil {
 		plog.Errorf("err-> %v", err)
 		return
@@ -25,7 +25,7 @@ func main() {
 			// 发送消息
 			writeData, err := pack.Pack(&pack.Message{
 				URI:  "/auth/server",
-				Body: "1",
+				Body: "plex-example",
 			})
 			if err != nil {
 				plog.Errorf("pack err-> %v", err)
@@ -67,7 +67,7 @@ func startClientHeartbeat(conn net.Conn) {
 	}
 
 	// time ticket
-	ticker := time.NewTicker(60 * time.Second)
+	ticker := time.NewTicker(5 * time.Second)
 	defer ticker.Stop()
 
 	for {
