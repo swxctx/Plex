@@ -30,36 +30,48 @@ func (c *plexClient) startInnerClient() {
 
 // innerClientConnection
 func (c *plexClient) innerClientConnection(serverAddr string) {
-	conn, err := net.Dial("tcp", serverAddr)
-	if err != nil {
-		plog.Errorf("failed to connect to server err-> %v", err)
-		return
-	}
-	defer conn.Close()
-
-	remoteAddr := conn.RemoteAddr().String()
-	plog.Infof("inner client connected, remote-> %s", serverAddr)
-
-	authSuccess := false
-
-	// read data
 	for {
-		if !authSuccess {
-			// auth
+		conn, err := net.Dial("tcp", serverAddr)
+		if err != nil {
+			plog.Errorf("failed to connect to server err-> %v", err)
+			time.Sleep(time.Duration(3) * time.Second)
+			continue
+		}
+
+		remoteAddr := conn.RemoteAddr().String()
+		plog.Infof("inner client connected, remote-> %s", serverAddr)
+
+		authSuccess := false
+
+		// 处理连接
+		c.handleConnection(conn, remoteAddr, &authSuccess)
+
+		// 连接关闭后，尝试重新连接
+		plog.Infof("attempting to reconnect to server in %d", 3)
+		time.Sleep(time.Duration(3) * time.Second)
+	}
+}
+
+// handleConnection 负责处理与服务器的连接和通信
+func (c *plexClient) handleConnection(conn net.Conn, remoteAddr string, authSuccess *bool) {
+	defer conn.Close()
+	for {
+		if !*authSuccess {
+			// 发送认证消息
 			if err := c.sendAuthMessage(conn); err != nil {
 				plog.Errorf("inner client send auth message err-> %v", err)
 				c.removeInnerClient(remoteAddr)
-				break
+				return
 			}
 		}
 
-		// unpack message
+		// 解包消息
 		message, err := pack.Unpack(conn)
 		if err != nil {
 			if err == io.EOF || err == io.ErrUnexpectedEOF {
 				plog.Infof("connection closed by server")
 				c.removeInnerClient(remoteAddr)
-				break
+				return
 			}
 			plog.Errorf("inner client unpack err-> %v", err)
 			continue
@@ -73,12 +85,12 @@ func (c *plexClient) innerClientConnection(serverAddr string) {
 		switch message.URI {
 		case auth_success_uri:
 			plog.Infof("inner client auth success")
-			authSuccess = true
+			*authSuccess = true
 
-			// heartbeat
+			// 启动心跳
 			go c.startInnerClientHeartbeat(conn)
 
-			// add inner client
+			// 添加客户端
 			c.addInnerClient(conn)
 		case auth_failed_uri:
 			plog.Infof("inner client auth failed, check inner password")
