@@ -24,7 +24,9 @@ type Config struct {
 ## 使用案例
 
 - 如下代码所示，代码启动了一个 `HTTP` 服务监听，同时初始化了 `PlexClient`
+
 - 调用接口 `/plexApi/v1/send` 后服务调用了 `PlexClient` 的消息发送
+
 - 这里只是一个简单的演示案例，在实际应用中可以与自己的服务架构相结合使用
 
 
