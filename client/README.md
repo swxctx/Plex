@@ -6,7 +6,7 @@
 
 ## 配置说明
 
-```yaml
+```
 type Config struct {
 	// 多机部署，服务器地址["127.0.0.1:9587", "127.0.0.1:9588"]
 	InnerServers []string
