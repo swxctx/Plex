@@ -1,5 +1,6 @@
 ## Plex
 - 轻量级`Golang TCP`框架，纯原生实现
+- `Plex` 主要涉及为发送简单指令给客户端的框架，所以暂时不设计 `IM` 功能，消息体也就不复杂
 - 包含鉴权、连接管理、心跳、服务端推送等功能
 - 包含`TCP`服务端、业务推送端
 - 使用`json`通信协议，后续将会支持`protobuf`等其他更多协议
@@ -51,7 +52,7 @@
 
 默认都有默认配置，也可以在启动时重新配置
 
-```yaml
+```
 // Config
 type Config struct {
 	// TCP监听端口，默认 9578
@@ -84,7 +85,7 @@ type Config struct {
 
 - 使用例子[点击查看](https://github.com/swxctx/plex/tree/main/example)
 
-- [安卓版本SDK](https://github.com/swxctx/plexAndroid)
+- [客户端-安卓对接SDK](https://github.com/swxctx/plexAndroid)，目前实现了安卓版本 `SDK`，可以快速集成到自己的应用中
 
 ## 安装
 
