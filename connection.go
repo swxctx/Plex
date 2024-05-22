@@ -36,6 +36,11 @@ func (c *plexConnection) close() {
 
 	// del store
 	c.plexServer.store.del(c.uid)
+
+	// callback
+	if len(c.uid) > 0 {
+		c.plexServer.onlineStatusSubscribe(false, c.uid)
+	}
 }
 
 // responseOnlyUri

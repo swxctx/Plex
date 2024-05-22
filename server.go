@@ -21,10 +21,12 @@ type plexServer struct {
 	store *connStore
 	// tcp auth func
 	authFunc func(body string) (bool, string)
+	// client online or offline callback
+	onlineStatusSubscribe func(isOnline bool, uid string)
 }
 
-// Start
-func Start(config *Config, fn ...func(body string) (bool, string)) {
+// NewServer new plex server
+func NewServer(config *Config, fn ...func(body string) (bool, string)) {
 	// reload config
 	cfg := reloadConfig(config)
 
@@ -41,7 +43,10 @@ func Start(config *Config, fn ...func(body string) (bool, string)) {
 		server.authFunc = fn[0]
 	}
 	plog.Infof("new plex server success.")
+}
 
+// Start plex server start
+func Start() {
 	plog.Infof("--- server start begin ---")
 
 	var (
@@ -68,4 +73,9 @@ func Start(config *Config, fn ...func(body string) (bool, string)) {
 // SetAuthFunc func set outer auth func
 func SetAuthFunc(fn func(body string) (bool, string)) {
 	server.authFunc = fn
+}
+
+// SetOnlineStatusSubscribe func client online status change callback
+func SetOnlineStatusSubscribe(fn func(isOnline bool, uid string)) {
+	server.onlineStatusSubscribe = fn
 }

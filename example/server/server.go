@@ -18,11 +18,19 @@ func main() {
 	}
 
 	// new server
-	plex.Start(&plex.Config{
+	plex.NewServer(&plex.Config{
 		Port:         "9578",
 		HttpPort:     "9500",
 		OuterServers: []string{"112.56.77.90:9578", "112.56.77.91:9579"},
 		ShowTrace:    true,
 		AuthTimeout:  5,
 	}, authFunc)
+
+	// 上下线订阅
+	plex.SetOnlineStatusSubscribe(func(isOnline bool, uid string) {
+		plog.Infof("上线状态: %v, UID-> %s", isOnline, uid)
+	})
+
+	// start
+	plex.Start()
 }

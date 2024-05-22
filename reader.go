@@ -117,6 +117,8 @@ func (c *plexConnection) handlerAuth(message *pack.Message) error {
 	// auth success
 	c.responseOnlyUri(auth_success_uri)
 
+	// online status change
+	c.plexServer.onlineStatusSubscribe(true, c.uid)
 	return nil
 }
 

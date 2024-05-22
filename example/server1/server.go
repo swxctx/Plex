@@ -18,10 +18,13 @@ func main() {
 	}
 
 	// new server
-	plex.Start(&plex.Config{
+	plex.NewServer(&plex.Config{
 		Port:        "9579",
 		HttpPort:    "9501",
 		ShowTrace:   true,
 		AuthTimeout: 5,
 	}, authFunc)
+
+	// start
+	plex.Start()
 }

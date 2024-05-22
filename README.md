@@ -122,13 +122,16 @@ func main() {
 	}
 
 	// new server
-	plex.Start(&plex.Config{
+	plex.NewServer(&plex.Config{
 		Port:         "9578",
 		HttpPort:     "9500",
 		OuterServers: []string{"117.50.198.225:9578"},
 		ShowTrace:    true,
 		AuthTimeout:  5,
 	}, authFunc)
+	
+	// start
+	plex.Start()
 }
 ```
 
