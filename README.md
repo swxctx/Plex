@@ -130,6 +130,11 @@ func main() {
 		AuthTimeout:  5,
 	}, authFunc)
 	
+	// 上下线订阅(业务端可以选择在这里接收管理自己的连接)
+	plex.SetOnlineStatusSubscribe(func(isOnline bool, uid string) {
+		plog.Infof("上线状态: %v, UID-> %s", isOnline, uid)
+	})
+	
 	// start
 	plex.Start()
 }
