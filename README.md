@@ -52,6 +52,8 @@
   "uri": "/example/uri",
   "body": "example body content"
 }
+
+例：34{"uri": "/example/uri"}，消息头部标识消息的长度，拿到长度以后需要从缓冲区读取指定的长度
 ```
 
 ## 配置说明
